@@ -1,5 +1,5 @@
-const CACHE = 'retiro-interior-v1';
-const ASSETS = ['./', './index.html', './manifest.json'];
+const CACHE = 'retiro-interior-v3';
+const ASSETS = ['./', './index.html', './manifest.json', './favicon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));

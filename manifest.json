@@ -1,11 +1,11 @@
 {
-  "name": "Retiro Interior – Guía de Trabajo",
-  "short_name": "Retiro Interior",
+  "name": "Camino Interior – Guía de Trabajo",
+  "short_name": "Camino Interior",
   "description": "Guía pre y post retiro para trabajo con plantas sagradas",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#080F0B",
-  "theme_color": "#080F0B",
+  "background_color": "#0B0F14",
+  "theme_color": "#0B0F14",
   "orientation": "portrait",
   "icons": [
     {
