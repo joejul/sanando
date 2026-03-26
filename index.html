@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080F0B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Retiro Interior">
+<title>Retiro Interior</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080F0B;
+  --surface: #0F1A14;
+  --surface2: #141F18;
+  --border: #1B2D22;
+  --green: #52B788;
+  --green-dk: #2D6A4F;
+  --green-glow: rgba(82,183,136,0.12);
+  --gold: #DDA15E;
+  --gold-bg: rgba(221,161,94,0.12);
+  --cream: #EDE0CE;
+  --muted: #4E7060;
+  --text: #C8BFB0;
+  --red-bg: rgba(201,100,80,0.1);
+  --red: #C97060;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:300;font-size:15px;line-height:1.7;min-height:100vh;overflow-x:hidden}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");opacity:.5;pointer-events:none;z-index:0}
+
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,15,11,.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top)}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;padding:14px 20px}
+.hdr-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--cream);letter-spacing:.02em}
+.hdr-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(8,15,11,.96);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.ntab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 8px;cursor:pointer;border:none;background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:400;gap:4px;transition:color .2s}
+.ntab.on{color:var(--green)}
+.ntab .ni{font-size:20px}
+
+/* LAYOUT */
+.main{position:relative;z-index:1;padding-top:60px;padding-bottom:76px;min-height:100vh}
+.tab{display:none}.tab.on{display:block}
+
+/* HERO */
+.hero{padding:36px 24px 28px;text-align:center}
+.badge{display:inline-block;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--green);background:var(--green-glow);border:1px solid rgba(82,183,136,.28);border-radius:20px;padding:4px 14px;margin-bottom:18px}
+.hero-em{font-size:44px;display:block;margin-bottom:14px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--cream);line-height:1.2;margin-bottom:10px}
+.hero h1 em{font-style:italic;color:var(--green)}
+.hero-sub{font-size:13px;color:var(--muted);line-height:1.6;max-width:300px;margin:0 auto}
+
+/* WEEK TRACKER */
+.wk-box{margin:0 16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+.wk-lbl{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.wk-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:0}
+.wk-btn{background:none;border:1px solid var(--border);border-radius:12px;padding:12px 8px;cursor:pointer;text-align:center;transition:all .2s;color:var(--muted);font-family:'DM Sans',sans-serif}
+.wk-btn.on{border-color:var(--green);background:var(--green-glow);color:var(--green)}
+.wk-n{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;display:block;line-height:1;margin-bottom:3px}
+.wk-s{font-size:10px;letter-spacing:.04em}
+.wk-detail{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.wk-detail.on{display:block}
+.wk-focus{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.wk-tags{display:flex;flex-direction:column;gap:6px}
+.wk-tag{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;background:var(--green-glow);border:1px solid rgba(82,183,136,.2);border-radius:8px;font-size:12px;color:var(--cream)}
+
+/* SECTION */
+.sec{margin:0 16px 16px}
+.sec-lbl{font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-left:4px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px}
+.card-hdr{padding:18px 20px;cursor:pointer;display:flex;align-items:flex-start;gap:14px;user-select:none}
+.card-ico{font-size:22px;flex-shrink:0;margin-top:1px}
+.card-txt{flex:1;min-width:0}
+.card-eye{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:3px}
+.card-ttl{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--cream);line-height:1.2}
+.card-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.card-chev{font-size:13px;color:var(--muted);transition:transform .3s;flex-shrink:0;margin-top:3px}
+.card.on .card-chev{transform:rotate(180deg)}
+.card-body{display:none;padding:0 20px 20px;border-top:1px solid var(--border)}
+.card.on .card-body{display:block}
+
+/* TEXT */
+.bt{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:12px}
+.sub3{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--cream);margin:18px 0 8px}
+.note{background:rgba(82,183,136,.07);border-left:3px solid var(--green-dk);border-radius:0 10px 10px 0;padding:11px 14px;margin:12px 0;font-size:13px;font-style:italic;color:var(--text);line-height:1.6}
+.gnote{background:var(--gold-bg);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:11px 14px;margin:12px 0;font-size:13px;color:var(--text);line-height:1.6}
+.gnote strong{color:var(--gold)}
+.wnote{background:var(--red-bg);border:1px solid rgba(201,112,96,.3);border-radius:12px;padding:14px;margin:12px 0}
+.wnote-t{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+ul.bl{list-style:none;margin:8px 0 10px}
+ul.bl li{font-size:14px;color:var(--text);padding:5px 0 5px 18px;position:relative;border-bottom:1px solid rgba(27,45,34,.6);line-height:1.5}
+ul.bl li:last-child{border-bottom:none}
+ul.bl li::before{content:'—';position:absolute;left:0;color:var(--green);font-weight:500}
+.mt{margin-top:14px}
+
+/* EXAMPLES */
+.ex-toggle{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin:12px 0 0;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--green);letter-spacing:.04em;transition:background .15s}
+.ex-toggle::before{content:'▸  ';font-size:10px}
+.ex-toggle.on::before{content:'▾  '}
+.ex-box{display:none;margin-top:6px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.ex-box.on{display:block}
+.ex-item{padding:14px 16px;border-bottom:1px solid var(--border)}
+.ex-item:last-child{border-bottom:none}
+.ex-lbl{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.ex-txt{font-size:13px;line-height:1.65;color:var(--text);font-style:italic}
+
+/* TIMER TABLE */
+.ttbl{width:100%;border-collapse:collapse;margin:10px 0;border-radius:10px;overflow:hidden;font-size:13px}
+.ttbl th{background:var(--green-dk);color:var(--cream);padding:9px 12px;text-align:left;font-weight:500;font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.ttbl td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5}
+.ttbl tr:last-child td{border-bottom:none}
+.ttbl tr:nth-child(even) td{background:var(--surface2)}
+.ttbl .tc{color:var(--green);font-weight:500;white-space:nowrap;width:52px;font-family:'Cormorant Garamond',serif;font-size:16px}
+
+/* QUESTIONS */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin:8px 0}
+.qt{font-size:14px;font-weight:500;color:var(--cream);margin-bottom:6px;line-height:1.45}
+.qe{font-size:12px;font-style:italic;color:var(--muted);line-height:1.55;padding-top:8px;border-top:1px solid var(--border)}
+.qe strong{color:var(--text);font-style:normal}
+
+/* INTENTION */
+.ip{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin:10px 0}
+.in-num{font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--green);opacity:.35;line-height:1;margin-bottom:4px}
+.in-q{font-size:14px;font-weight:500;color:var(--cream);margin-bottom:5px}
+.in-h{font-size:12px;color:var(--muted);margin-bottom:10px;font-style:italic}
+.in-good{font-size:13px;color:var(--green);background:var(--green-glow);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.in-bad{font-size:12px;color:#a06050;background:var(--red-bg);border-radius:8px;padding:7px 10px;text-decoration:line-through;opacity:.7}
+
+/* FACILITATOR */
+.fi{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.fi:last-child{border-bottom:none}
+.fn{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--green);opacity:.4;line-height:1;flex-shrink:0;width:26px}
+.fc{flex:1}
+.ft{font-size:14px;font-weight:500;color:var(--cream);margin-bottom:5px}
+.fs{font-size:13px;font-style:italic;color:var(--text);background:var(--surface2);border-left:2px solid var(--green-dk);padding:8px 12px;border-radius:0 8px 8px 0;line-height:1.6;margin-top:5px}
+
+/* ALT CARDS */
+.ac{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin:8px 0}
+.ac-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ac-i{font-size:20px}
+.ac-t{font-size:14px;font-weight:500;color:var(--cream)}
+.ac-b{font-size:13px;color:var(--text);line-height:1.65}
+
+/* DIVIDER */
+.div{height:1px;background:var(--border);margin:18px 0}
+
+/* QUOTE */
+.quote{text-align:center;padding:24px 0;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--green);font-style:italic;line-height:1.55}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <span class="hdr-title">Retiro Interior 🌿</span>
+    <div class="hdr-dot"></div>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- ===== PRE-RETIRO ===== -->
+<div class="tab on" id="tab-pre">
+  <div class="hero">
+    <span class="badge">3 Semanas · Pre-Retiro</span>
+    <span class="hero-em">🌱</span>
+    <h1>Antes de<br><em>la ceremonia</em></h1>
+    <p class="hero-sub">Prácticas con personas cercanas para llegar al retiro con el sistema nervioso preparado para abrirse.</p>
+  </div>
+
+  <!-- WEEK TRACKER -->
+  <div class="sec">
+    <div class="wk-box">
+      <div class="wk-lbl">¿En qué semana estás?</div>
+      <div class="wk-grid">
+        <button class="wk-btn on" onclick="setWeek(1,this)">
+          <span class="wk-n">1</span><span class="wk-s">Apertura</span>
+        </button>
+        <button class="wk-btn" onclick="setWeek(2,this)">
+          <span class="wk-n">2</span><span class="wk-s">Cuerpo</span>
+        </button>
+        <button class="wk-btn" onclick="setWeek(3,this)">
+          <span class="wk-n">3</span><span class="wk-s">Cierre</span>
+        </button>
+      </div>
+      <div class="wk-detail on" id="wd1">
+        <div class="wk-focus">Enfoque esta semana</div>
+        <div class="wk-tags">
+          <div class="wk-tag">🗣 Práctica 1 — Contacto sostenido (1x)</div>
+          <div class="wk-tag">❓ Pregunta semanal (diario)</div>
+        </div>
+      </div>
+      <div class="wk-detail" id="wd2">
+        <div class="wk-focus">Enfoque esta semana</div>
+        <div class="wk-tags">
+          <div class="wk-tag">🫁 Práctica 2 — Check-in corporal (2–3x)</div>
+          <div class="wk-tag">❓ Pregunta semanal (diario)</div>
+        </div>
+      </div>
+      <div class="wk-detail" id="wd3">
+        <div class="wk-focus">Enfoque esta semana</div>
+        <div class="wk-tags">
+          <div class="wk-tag">🔍 Práctica 3 — Nombrar el cierre (1–2x)</div>
+          <div class="wk-tag">📖 Preguntas de reflexión profunda</div>
+          <div class="wk-tag">❓ Pregunta semanal (diario)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRACTICE 1 -->
+  <div class="sec">
+    <div class="sec-lbl">Las prácticas</div>
+
+    <div class="card" id="p1">
+      <div class="card-hdr" onclick="toggle('p1')">
+        <span class="card-ico">🗣</span>
+        <div class="card-txt">
+          <div class="card-eye">Semana 1 · 30–40 min · 1 persona</div>
+          <div class="card-ttl">Contacto sostenido</div>
+          <div class="card-sub">Decir en voz alta lo que normalmente guardas</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <p class="bt">Uno habla 15 minutos sin interrupciones. El otro solo escucha — sin consejos, sin sus propias historias, sin soluciones. Al terminar, refleja solo lo que oyó: "Escuché que..." sin agregar nada. Luego cambian roles.</p>
+
+        <h3 class="sub3">El formato exacto</h3>
+        <table class="ttbl">
+          <tr><th class="tc">Tiempo</th><th>Qué pasa</th></tr>
+          <tr><td class="tc">0–15'</td><td>Tú hablas. Tu acompañante solo escucha. Silencio total de su parte.</td></tr>
+          <tr><td class="tc">15–20'</td><td>Tu acompañante refleja: "Escuché que..." — sin interpretar ni agregar.</td></tr>
+          <tr><td class="tc">20–35'</td><td>Cambian roles. Él habla, tú escuchas.</td></tr>
+          <tr><td class="tc">35–40'</td><td>Cierre breve: ¿cómo estamos saliendo de esto?</td></tr>
+        </table>
+
+        <h3 class="sub3">Tu tarea concreta</h3>
+        <p class="bt">Habla de algo que normalmente guardarías. No tiene que ser dramático ni catártico. Lo que entrenas es el músculo de decirlo en voz alta con alguien presente.</p>
+
+        <div class="note">Si sientes el impulso de hacer un chiste, de aclarar que "no es para tanto", o de terminar antes — nota ese impulso. Es el patrón evitativo actuando. No lo actúes automáticamente. Quédate un momento más.</div>
+
+        <button class="ex-toggle" onclick="xToggle('x1')">Ver cómo empezar — 2 ejemplos</button>
+        <div class="ex-box" id="x1">
+          <div class="ex-item">
+            <div class="ex-lbl">Ejemplo 1 · Algo cotidiano</div>
+            <div class="ex-txt">"Esta semana me sentí solo en el trabajo, pero en lugar de decírselo a alguien, seguí funcionando como si nada. No lo mencioné porque no quería parecer que lo necesitaba."<br><br>Luego silencio. Tu acompañante no hace nada, solo está presente. Eso es la práctica completa.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-lbl">Ejemplo 2 · Algo sobre el retiro</div>
+            <div class="ex-txt">"Tengo miedo de que lo que emerja en la ceremonia sea demasiado y no saber qué hacer con eso después."<br><br>No buscas que te tranquilicen. No buscas que te resuelvan nada. Solo lo dices con alguien presente. Eso ya es el ejercicio.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRACTICE 2 -->
+    <div class="card" id="p2">
+      <div class="card-hdr" onclick="toggle('p2')">
+        <span class="card-ico">🫁</span>
+        <div class="card-txt">
+          <div class="card-eye">Semana 2 · 15 min · puede ser diario</div>
+          <div class="card-ttl">Check-in corporal</div>
+          <div class="card-sub">Bajar la conversación del cerebro al cuerpo</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <p class="bt">El apego evitativo vive en la cabeza. Cuando algo te activa — una conversación difícil, alguien que te pide demasiado, una semana de sobrecarga, un momento de cercanía — el cuerpo sabe antes que la mente. Este ejercicio entrena notarlo.</p>
+        <p class="bt">Hazlo antes de cualquier conversación importante, o inmediatamente después de algo que te activó. En voz alta, con alguien presente o solo.</p>
+
+        <h3 class="sub3">Las tres preguntas</h3>
+        <div class="qb">
+          <div class="qt">1. ¿Qué siento en el cuerpo ahora mismo?</div>
+          <div class="qe">No lo que <em>piensas</em> que sientes. Lo que <em>sientes</em>. Tensión, peso, calor, opresión, ligereza, nada — cualquiera vale. "No siento nada" también es información.</div>
+        </div>
+        <div class="qb">
+          <div class="qt">2. ¿Qué emoción está presente, aunque sea vaga?</div>
+          <div class="qe">No tiene que estar clara ni etiquetada. "Algo como miedo mezclado con enojo, no sé bien" es una respuesta perfectamente válida.</div>
+        </div>
+        <div class="qb">
+          <div class="qt">3. ¿Qué necesito de este espacio ahora?</div>
+          <div class="qe">Esta es la más difícil para el evitativo. La respuesta "nada" casi siempre es defensa. Busca algo concreto aunque sea pequeño: espacio, que alguien sepa, tiempo para parar.</div>
+        </div>
+
+        <button class="ex-toggle" onclick="xToggle('x2')">Ejemplos personalizados a tus situaciones</button>
+        <div class="ex-box" id="x2">
+          <div class="ex-item">
+            <div class="ex-lbl">Situación: conflicto o conversación difícil</div>
+            <div class="ex-txt">Acabo de salir de una conversación tensa y siento que quiero desaparecer.<br><br>Check-in: <strong style="color:var(--cream);font-style:normal">Cuerpo</strong> — tensión en el pecho y mandíbula apretada. <strong style="color:var(--cream);font-style:normal">Emoción</strong> — algo como vergüenza mezclado con enojo, pero no sé exactamente de qué. <strong style="color:var(--cream);font-style:normal">Necesidad</strong> — quiero espacio, pero también quiero que alguien sepa que esa conversación fue difícil.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-lbl">Situación: alguien me pide demasiado</div>
+            <div class="ex-txt">Un amigo acaba de pedirme algo grande que no quiero hacer. Antes de responder, hago el check-in.<br><br><strong style="color:var(--cream);font-style:normal">Cuerpo</strong> — respiración cortada, hombros tensos. <strong style="color:var(--cream);font-style:normal">Emoción</strong> — miedo a decepcionar, algo de resentimiento también. <strong style="color:var(--cream);font-style:normal">Necesidad</strong> — quiero decir que no, pero no sé cómo hacerlo sin que él se enoje o sin que yo me sienta mal.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-lbl">Situación: trabajo bajo presión o sobrecarga</div>
+            <div class="ex-txt">Semana muy intensa, muchas exigencias, me siento en piloto automático.<br><br><strong style="color:var(--cream);font-style:normal">Cuerpo</strong> — pesadez general, no siento mucho. <strong style="color:var(--cream);font-style:normal">Emoción</strong> — casi nada, como una anestesia. <strong style="color:var(--cream);font-style:normal">Necesidad</strong> — no lo sé. Solo quiero parar.<br><br>Nota: el "no sé" es datos, no una respuesta vacía. Significa que el sistema está saturado.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-lbl">Situación: intimidad emocional o física</div>
+            <div class="ex-txt">Tuve un momento de cercanía con alguien y algo en mí quiso salir aunque todo estuvo bien.<br><br><strong style="color:var(--cream);font-style:normal">Cuerpo</strong> — inquietud, ganas de moverme o de tener espacio. <strong style="color:var(--cream);font-style:normal">Emoción</strong> — algo que se parece al miedo aunque nada malo pasó. <strong style="color:var(--cream);font-style:normal">Necesidad</strong> — quiero entender por qué me fui internamente cuando nada estaba amenazado.</div>
+          </div>
+        </div>
+
+        <div class="note mt">No tiene que ser profundo cada vez. El objetivo es crear el hábito de nombrarlo. Con el tiempo el cuerpo se vuelve más legible.</div>
+      </div>
+    </div>
+
+    <!-- PRACTICE 3 -->
+    <div class="card" id="p3">
+      <div class="card-hdr" onclick="toggle('p3')">
+        <span class="card-ico">🔍</span>
+        <div class="card-txt">
+          <div class="card-eye">Semana 3 · 40–50 min · la más difícil</div>
+          <div class="card-ttl">Nombrar el cierre</div>
+          <div class="card-sub">Diseñar la situación que activa el patrón</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <p class="bt">Tienes razón en que la gente que te conoce no va a notar ni decir espontáneamente que te cerraste. Por eso esta práctica <strong style="color:var(--cream)">requiere que tú diseñes la situación deliberadamente</strong>. No esperas a que ocurra. La configuras.</p>
+
+        <h3 class="sub3">Cómo configurar la situación — 2 métodos</h3>
+
+        <div class="gnote">
+          <strong>Método A — El tema pre-acordado</strong><br>
+          Le dices a tu amigo de antemano qué temas tienden a cerrarte. Él los introduce durante la sesión, pero sin decirte exactamente cuándo. La sorpresa activa el patrón real — lo mismo que pasaría en la ceremonia.
+        </div>
+        <div class="gnote">
+          <strong>Método B — Las preguntas activadoras</strong><br>
+          Le das a tu amigo una lista de preguntas incómodas. Él las hace en caliente, una por una, sin avisarte cuál viene. Tú practicas notar tu respuesta corporal y nombrarlo antes de actuar.
+        </div>
+
+        <h3 class="sub3">Banco de preguntas activadoras</h3>
+        <p class="bt" style="font-size:13px;color:var(--muted)">Dale esta lista a tu acompañante. Que elija 2–3 sin decirte cuáles usará.</p>
+        <ul class="bl">
+          <li>¿Qué necesitas de mí ahora mismo, en este momento?</li>
+          <li>¿Hay algo que quieras pedirme y no me has pedido?</li>
+          <li>¿En qué sientes que te fallo yo?</li>
+          <li>¿Cómo te sientes conmigo en este momento?</li>
+          <li>¿Cuándo fue la última vez que realmente me dejaste entrar?</li>
+          <li>¿Qué estarías haciendo ahora si no estuviéramos aquí?</li>
+          <li>¿Qué te cuesta más recibir de otras personas?</li>
+        </ul>
+
+        <h3 class="sub3">Lo que tú practicas cuando se activa el cierre</h3>
+        <ul class="bl">
+          <li>No defenderte ni justificarte</li>
+          <li>Nombrar lo que sientes: <em>"Sí, siento que quiero cerrarme ahora mismo"</em></li>
+          <li>Quedarte en esa incomodidad 30 segundos antes de moverse o cambiar el tema</li>
+          <li>Después: confirmar si fue cierre o no — sin debate, solo observación</li>
+        </ul>
+
+        <button class="ex-toggle" onclick="xToggle('x3')">Cómo se ve esto en la práctica — 2 ejemplos</button>
+        <div class="ex-box" id="x3">
+          <div class="ex-item">
+            <div class="ex-lbl">Ejemplo 1 · Método A en acción</div>
+            <div class="ex-txt">Le dices a tu amigo antes: "El tema de lo que necesito emocionalmente me tiende a cerrar. En algún momento de nuestra sesión pregúntame algo sobre eso — no me digas cuándo."<br><br>Cuando lo pregunta, hay incomodidad inmediata. Notas que quieres cambiar el tema o hacer un chiste. Eso es el patrón activado en tiempo real. Nombras: "Ahí. Siento que quiero irme. No sé qué responderte." Ya hiciste la práctica.</div>
+          </div>
+          <div class="ex-item">
+            <div class="ex-lbl">Ejemplo 2 · Método B con pregunta difícil</div>
+            <div class="ex-txt">Tu amigo pregunta: "¿En qué sientes que te fallo yo?"<br><br>El evitativo tiende a responder con "en nada, todo bien" o desviar hacia lo positivo. Nota ese impulso. Si aparece, nómbralo: "Mi primer impulso fue decir que no me fallas en nada. Pero probablemente eso no es del todo verdad y no sé cómo decirlo."<br><br>Luego te quedas ahí. No tienes que tener la respuesta. La incomodidad es la práctica.</div>
+          </div>
+        </div>
+
+        <div class="note mt">No tienes que resolver nada ni llegar a ningún lugar. El objetivo no es la respuesta — es notar el momento exacto en que el sistema cierra, y aguantar un momento más en ese borde.</div>
+      </div>
+    </div>
+
+    <!-- PRACTICE 4 -->
+    <div class="card" id="p4">
+      <div class="card-hdr" onclick="toggle('p4')">
+        <span class="card-ico">❓</span>
+        <div class="card-txt">
+          <div class="card-eye">Cada semana · 5–10 min · para ti solo</div>
+          <div class="card-ttl">La pregunta semanal</div>
+          <div class="card-sub">Escrita o en voz alta — todos los días si puedes</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="qb">
+          <div class="qt">¿Qué necesité esta semana y no pedí?<br>¿Por qué no lo pedí?</div>
+          <div class="qe">
+            <strong>Ejemplo abstracto:</strong> No es "necesitaba agua y no la pedí." Es más como: "Necesitaba que alguien preguntara cómo estaba, pero como nadie lo hizo, seguí funcionando como si todo estuviera bien — y nunca lo pedí porque pedirlo me hacía sentir que era demasiado para los demás."<br><br>
+            Eso es exactamente el patrón que vas a llevar al retiro. Conocerlo de antemano importa.
+          </div>
+        </div>
+        <div class="note">Simple. Brutalmente reveladora si la haces con honestidad sostenida durante 3 semanas. El patrón se vuelve visible cuando tienes la secuencia.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFLECTION QUESTIONS -->
+  <div class="sec">
+    <div class="sec-lbl">Preguntas profundas · Semana 3</div>
+    <div class="card" id="refl">
+      <div class="card-hdr" onclick="toggle('refl')">
+        <span class="card-ico">📖</span>
+        <div class="card-txt">
+          <div class="card-eye">Para journal o con alguien</div>
+          <div class="card-ttl">Preguntas de reflexión</div>
+          <div class="card-sub">Elige las que más resistencia te generan</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <p class="bt">No las respondas todas. La resistencia ante alguna ya es información sobre dónde está lo importante.</p>
+
+        <div class="qb">
+          <div class="qt">1. ¿Quién me enseñó que necesitar a otros era peligroso, débil o una carga?</div>
+          <div class="qe"><strong>Ejemplo:</strong> No necesariamente un momento traumático. Puede ser algo tan sutil como que en tu casa la tristeza recibía un "ya se te va a pasar" — el mensaje implícito era que los sentimientos eran un inconveniente. O que la autonomía era lo que se premiaba, y la vulnerabilidad nunca tuvo espacio.</div>
+        </div>
+        <div class="qb">
+          <div class="qt">2. ¿Qué estoy protegiendo con la distancia que mantengo?</div>
+          <div class="qe"><strong>Ejemplo:</strong> A veces es el orgullo — no quiero que me vean necesitar. A veces es el control — si no me acerco, no me pueden decepcionar. A veces es algo más antiguo: si me acerco y me rechazan, confirmo algo sobre mí que no quiero confirmar.</div>
+        </div>
+        <div class="qb">
+          <div class="qt">3. ¿Cuándo fue la última vez que alguien me vio de verdad — y lo dejé entrar?</div>
+          <div class="qe"><strong>Ejemplo:</strong> No un momento en que te vieron hacer algo bien. Un momento donde vieron algo frágil, imperfecto, o que no tenías controlado — y tú no lo minimizaste, no cambiaste el tema, y lo dejaste estar ahí con otra persona presente.</div>
+        </div>
+        <div class="qb">
+          <div class="qt">4. ¿De qué me culpo que todavía no he dicho en voz alta?</div>
+          <div class="qe"><strong>Ejemplo:</strong> No la culpa que ya procesaste intelectualmente. La que sigue operando en silencio — la que aparece a las 2am, o en ese momento justo antes de dormirte. La que nunca le has dicho a nadie exactamente como es, sin editar.</div>
+        </div>
+        <div class="qb">
+          <div class="qt">5. ¿Cómo sería mi vida si necesitar a alguien no me costara nada?</div>
+          <div class="qe"><strong>Ejemplo:</strong> No lo que cambiarías en los demás. Lo que cambiaría en ti. ¿Qué pedirías? ¿Qué dirías en una conversación difícil? ¿Cómo llegarías a tu próxima semana? ¿Qué harías diferente el lunes por la mañana?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END PRE -->
+
+<!-- ===== CEREMONIA ===== -->
+<div class="tab" id="tab-cer">
+  <div class="hero">
+    <span class="badge">La noche antes · Ceremonia</span>
+    <span class="hero-em">🔥</span>
+    <h1>Preparación<br><em>final</em></h1>
+    <p class="hero-sub">Tu intención y lo que le dices al facilitador. No llegues improvisando esto.</p>
+  </div>
+
+  <!-- INTENTION -->
+  <div class="sec">
+    <div class="sec-lbl">Cómo construir tu intención</div>
+    <div class="card" id="intent">
+      <div class="card-hdr" onclick="toggle('intent')">
+        <span class="card-ico">🎯</span>
+        <div class="card-txt">
+          <div class="card-eye">Framework en 4 partes</div>
+          <div class="card-ttl">La intención bien hecha</div>
+          <div class="card-sub">Abierta, honesta, sin resultado controlado</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <p class="bt">Una intención controladora cierra la experiencia antes de empezar. Una intención abierta crea el espacio para lo que realmente necesitas ver.</p>
+        <div class="note">La diferencia clave: <em>"quiero sanar X"</em> es un objetivo. <em>"Estoy dispuesto a ver X"</em> es una intención. El primero controla. El segundo invita.</div>
+
+        <div class="ip">
+          <div class="in-num">01</div>
+          <div class="in-q">¿Qué quiero ver o entender?</div>
+          <div class="in-h">No el resultado — la pregunta. ¿Sobre qué quieres más claridad?</div>
+          <div class="in-bad">✗ "Quiero resolver mi apego evitativo"</div>
+          <div class="in-good">✓ "Quiero ver con honestidad cómo la distancia que mantengo me ha costado"</div>
+        </div>
+
+        <div class="ip">
+          <div class="in-num">02</div>
+          <div class="in-q">¿Qué estoy dispuesto a sentir?</div>
+          <div class="in-h">El evitativo quiere entender sin sentir. Esta parte desmonta esa defensa directamente.</div>
+          <div class="in-bad">✗ "Quiero entender de dónde viene mi ansiedad"</div>
+          <div class="in-good">✓ "Estoy dispuesto a sentir lo que la soledad me ha costado, aunque sea incómodo"</div>
+        </div>
+
+        <div class="ip">
+          <div class="in-num">03</div>
+          <div class="in-q">¿Qué quiero soltar?</div>
+          <div class="in-h">Algo que tú cargas — no lo que otros deberían cambiar.</div>
+          <div class="in-bad">✗ "Quiero dejar de ser así"</div>
+          <div class="in-good">✓ "Quiero soltar la culpa de haberme alejado cuando alguien me necesitaba"</div>
+        </div>
+
+        <div class="ip">
+          <div class="in-num">04</div>
+          <div class="in-q">¿Cómo quiero salir?</div>
+          <div class="in-h">No "curado" — eso no es alcanzable en una noche. ¿Qué cualidad quieres llevar de regreso?</div>
+          <div class="in-bad">✗ "Quiero salir sin ansiedad"</div>
+          <div class="in-good">✓ "Quiero salir con más compasión hacia mí mismo sobre por qué soy como soy"</div>
+        </div>
+
+        <div class="gnote mt">
+          <strong>Tu intención completa podría sonar así:</strong><br><br>
+          "Quiero ver con honestidad cómo la distancia que he mantenido con otros me ha costado — y estoy dispuesto a sentir lo que eso significa. Quiero soltar la idea de que necesitar es una debilidad. Quiero salir con más claridad sobre qué estoy protegiendo, y si todavía tiene sentido protegerlo."
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FACILITATOR -->
+  <div class="sec">
+    <div class="sec-lbl">Antes de la primera ceremonia</div>
+    <div class="card" id="fac">
+      <div class="card-hdr" onclick="toggle('fac')">
+        <span class="card-ico">🤝</span>
+        <div class="card-txt">
+          <div class="card-eye">4 cosas — no es opcional</div>
+          <div class="card-ttl">Lo que le dices al facilitador</div>
+          <div class="card-sub">Usar el contexto a tu favor desde el inicio</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <p class="bt">No tienes que dar un análisis completo. Cuatro cosas concretas son suficientes. Los facilitadores experimentados saben exactamente qué hacer con esta información.</p>
+
+        <div class="fi">
+          <div class="fn">1</div>
+          <div class="fc">
+            <div class="ft">Tu patrón central</div>
+            <div class="fs">"Trabajo con apego evitativo. Tiendo a cerrarme o a intelectualizar cuando algo se pone emocionalmente intenso — es probable que lo veas durante la ceremonia."</div>
+          </div>
+        </div>
+
+        <div class="fi">
+          <div class="fn">2</div>
+          <div class="fc">
+            <div class="ft">Tus señales físicas de cierre</div>
+            <div class="fs">"Cuando me cierro suele pasar que [silencio repentino / cara de 'estoy bien' / empiezo a analizar en voz alta en lugar de sentir]. Si lo notas, puedes nombrarlo — me ayuda más que dejar que el momento pase."</div>
+          </div>
+        </div>
+
+        <div class="fi">
+          <div class="fn">3</div>
+          <div class="fc">
+            <div class="ft">Qué tipo de apoyo pedirte si te cierras</div>
+            <div class="fs">"Si ves que me fui, la forma más útil de traerme de vuelta es [una pregunta directa / presencia silenciosa / música / que pongas tu mano en mi hombro]. No quiero que me dejen solo en ese momento — aunque yo diga que estoy bien."</div>
+          </div>
+        </div>
+
+        <div class="fi">
+          <div class="fn">4</div>
+          <div class="fc">
+            <div class="ft">Tu intención central en una oración</div>
+            <div class="fs">"Mi intención es ver con honestidad cómo la distancia que mantengo con otros me ha costado — y quiero sentirlo, no solo entenderlo. Eso es lo que vine a trabajar."</div>
+          </div>
+        </div>
+
+        <div class="note mt">Una oración por punto es suficiente. No es una sesión de terapia — es darle al facilitador el mapa para acompañarte mejor si la noche se pone intensa.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END CEREMONIA -->
+
+<!-- ===== POST-RETIRO ===== -->
+<div class="tab" id="tab-post">
+  <div class="hero">
+    <span class="badge">Post-Retiro · 6 semanas</span>
+    <span class="hero-em">🌊</span>
+    <h1>La integración<br><em>es el trabajo real</em></h1>
+    <p class="hero-sub">El retiro es el catalizador. Lo que hagas en los meses siguientes es donde el patrón cambia.</p>
+  </div>
+
+  <div class="sec">
+    <div class="note" style="margin-bottom:0">Advertencia para el evitativo: vas a querer procesar todo solo. Eso es exactamente la trampa. La sanación del apego ocurre <em>en relación</em>, no en soledad.</div>
+  </div>
+
+  <!-- CON GRUPO -->
+  <div class="sec">
+    <div class="sec-lbl">Si tienes grupo de integración</div>
+    <div class="card" id="wg">
+      <div class="card-hdr" onclick="toggle('wg')">
+        <span class="card-ico">👥</span>
+        <div class="card-txt">
+          <div class="card-eye">1x semana · 60–75 min</div>
+          <div class="card-ttl">Círculo de integración</div>
+          <div class="card-sub">Formato completo para 2–3 personas</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <table class="ttbl">
+          <tr><th class="tc">Tiempo</th><th>Qué pasa</th></tr>
+          <tr><td class="tc">10'</td><td>Check-in corporal de todos — las 3 preguntas</td></tr>
+          <tr><td class="tc">20'</td><td>Solo tú hablas: ¿qué emergió? ¿qué sigue vivo esta semana?</td></tr>
+          <tr><td class="tc">15'</td><td>El grupo refleja — solo lo que escucharon, sin interpretaciones ni consejos</td></tr>
+          <tr><td class="tc">10'</td><td>Tú identificas una micro-acción concreta para esta semana</td></tr>
+          <tr><td class="tc">5'</td><td>Cierre — cada persona nombra cómo está saliendo</td></tr>
+        </table>
+        <h3 class="sub3">Reglas para el grupo</h3>
+        <ul class="bl">
+          <li>Solo preguntas abiertas — qué, cómo, cuándo — nunca "¿por qué?" (genera defensas)</li>
+          <li>Nada de "yo creo que deberías..." o "lo que pasa es que..."</li>
+          <li>No compartir sus propias historias en tu tiempo</li>
+          <li>El silencio está permitido — no hay que llenarlo</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIN GRUPO -->
+  <div class="sec">
+    <div class="sec-lbl">Si no tienes grupo — alternativas reales</div>
+
+    <div class="ac">
+      <div class="ac-h"><span class="ac-i">🤙</span><div class="ac-t">Accountability partner — 1 persona</div></div>
+      <div class="ac-b">Una persona de confianza, sin el formato completo del círculo. Acuerdan hablar 20–30 minutos una vez por semana — las 3 preguntas del check-in, y compartir qué sigue vivo. Es más alcanzable y suficiente si es consistente. Qasa también tiene comunidad post-retiro incluida — eso puede funcionar como este espacio.</div>
+    </div>
+
+    <div class="ac">
+      <div class="ac-h"><span class="ac-i">🎙</span><div class="ac-t">Protocolo de notas de voz</div></div>
+      <div class="ac-b">Grábate respondiendo las preguntas de integración — en voz alta, no escrito. Luego manda el audio a alguien de confianza sin necesidad de que responda en detalle. El acto de decirlo en voz alta ya interrumpe el procesamiento interno. El otro es el testigo, no el analista. Es simple y muy efectivo para el evitativo.</div>
+    </div>
+
+    <div class="ac">
+      <div class="ac-h"><span class="ac-i">🌐</span><div class="ac-t">Comunidades de integración</div></div>
+      <div class="ac-b">La comunidad post-retiro de Qasa es el primer lugar. También existen Integration Circle (grupos de Zoom en español e inglés), Psychedelics Today (foros), y grupos en Reddit como r/Ayahuasca específicamente para integración. No reemplazan la conexión real — son complemento mientras construyes lo demás.</div>
+    </div>
+
+    <div class="ac">
+      <div class="ac-h"><span class="ac-i">📓</span><div class="ac-t">Journal estructurado — protocolo de respaldo</div></div>
+      <div class="ac-b">Si en alguna semana no tienes a nadie disponible: escribe las preguntas en papel — no en pantalla — y respóndelas como si le hablaras a alguien. El cambio de medio importa. Guarda ese journal para tu sesión con el terapeuta.</div>
+    </div>
+  </div>
+
+  <!-- INTEGRATION QUESTIONS -->
+  <div class="sec">
+    <div class="sec-lbl">Preguntas de integración — semana a semana</div>
+    <div class="card" id="iq">
+      <div class="card-hdr" onclick="toggle('iq')">
+        <span class="card-ico">🔄</span>
+        <div class="card-txt">
+          <div class="card-eye">Usa 1–2 por sesión, rota</div>
+          <div class="card-ttl">Las 6 preguntas</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="qb"><div class="qt">1. ¿Qué de lo que emergió en la ceremonia sigue presente en mi vida esta semana?</div></div>
+        <div class="qb"><div class="qt">2. ¿En qué momento activé el cierre evitativo? ¿Qué lo detonó exactamente?</div></div>
+        <div class="qb"><div class="qt">3. ¿Hubo un momento donde alguien me ofreció presencia o apoyo — y lo dejé entrar?</div></div>
+        <div class="qb"><div class="qt">4. ¿Qué sigo sin pedir, y a quién? ¿Qué me costaría pedirlo?</div></div>
+        <div class="qb"><div class="qt">5. ¿Qué patrón quiero interrumpir esta semana, aunque sea una sola vez?</div></div>
+        <div class="qb"><div class="qt">6. ¿Qué emoción emergió que normalmente habría guardado? ¿Qué hice con ella?</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MICRO ACTIONS -->
+  <div class="sec">
+    <div class="sec-lbl">Micro-acciones — elige una por semana</div>
+    <div class="card" id="ma">
+      <div class="card-hdr" onclick="toggle('ma')">
+        <span class="card-ico">⚡</span>
+        <div class="card-txt">
+          <div class="card-eye">Consistencia sobre intensidad</div>
+          <div class="card-ttl">Menú de práctica semanal</div>
+          <div class="card-sub">El sistema nervioso se recalibra con micro-exposiciones repetidas</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <ul class="bl">
+          <li>Pedir algo que necesitas a alguien específico — aunque sea pequeño</li>
+          <li>Dejar que alguien haga algo por ti sin desviar con "no te preocupes"</li>
+          <li>Compartir algo que normalmente guardarías — en el momento, no días después</li>
+          <li>Cuando sientas el impulso de cerrar, nombrarlo en voz alta: "estoy cerrándome"</li>
+          <li>Llegar a una conversación importante sin haber preparado todo de antemano</li>
+          <li>Decir "no sé" o "necesito ayuda" sin tener la solución ya lista</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- THERAPIST -->
+  <div class="sec">
+    <div class="sec-lbl">El terapeuta — lo que ya planeas</div>
+    <div class="card" id="th">
+      <div class="card-hdr" onclick="toggle('th')">
+        <span class="card-ico">🧭</span>
+        <div class="card-txt">
+          <div class="card-eye">Cuándo ir y qué buscar</div>
+          <div class="card-ttl">Ir al terapeuta</div>
+        </div>
+        <span class="card-chev">▾</span>
+      </div>
+      <div class="card-body">
+        <div class="wnote">
+          <div class="wnote-t">Ir antes de lo planeado si aparece esto</div>
+          <ul class="bl" style="margin-top:0">
+            <li>El material que emergió se siente demasiado grande para el espacio de amigos</li>
+            <li>Sientes disociación frecuente — no estás del todo presente en tu propia vida</li>
+            <li>El aislamiento aumenta en lugar de disminuir con el tiempo</li>
+            <li>El impulso de "resolverlo solo" se intensifica en las primeras 2 semanas</li>
+          </ul>
+        </div>
+        <h3 class="sub3">Qué buscar</h3>
+        <ul class="bl">
+          <li>Formación en teoría del apego — que entienda el sistema evitativo específicamente</li>
+          <li>IFS, AEDP o Somatic Experiencing — trabajan con el cuerpo, no solo la mente</li>
+          <li>Apertura a integración psicodélica — que no le incomode el contexto del retiro</li>
+        </ul>
+        <div class="gnote mt">
+          <strong>Pregunta directa en la primera sesión:</strong><br>
+          "¿Tienes experiencia trabajando con apego evitativo?" — La respuesta te dice todo sobre si es la persona indicada.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="quote">"El apego evitativo se sana en relación,<br>no en soledad."</div>
+  </div>
+</div>
+<!-- END POST -->
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="ntab on" onclick="switchTab('pre',this)">
+    <span class="ni">🌱</span>Pre-Retiro
+  </button>
+  <button class="ntab" onclick="switchTab('cer',this)">
+    <span class="ni">🔥</span>Ceremonia
+  </button>
+  <button class="ntab" onclick="switchTab('post',this)">
+    <span class="ni">🌊</span>Post-Retiro
+  </button>
+</nav>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(b => b.classList.remove('on'));
+  document.getElementById('tab-' + name).classList.add('on');
+  btn.classList.add('on');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggle(id) {
+  document.getElementById(id).classList.toggle('on');
+}
+
+function xToggle(id) {
+  const box = document.getElementById(id);
+  const btn = box.previousElementSibling;
+  box.classList.toggle('on');
+  btn.classList.toggle('on');
+}
+
+function setWeek(n, btn) {
+  document.querySelectorAll('.wk-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.wk-detail').forEach(d => d.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('wd' + n).classList.add('on');
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
